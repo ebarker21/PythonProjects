@@ -2,6 +2,8 @@ import requests
 import random
 from lxml import html
 
+visited = set()
+
 def webCrawl(url):
     headers = {'User-Agent': 'MyUserAgent/1.0'}
     response = requests.get(url, headers=headers)
@@ -21,8 +23,18 @@ def webCrawl(url):
 currentURL = 'https://en.wikipedia.org/wiki/Linux'
 while True:
     pageData = webCrawl(currentURL)
+    
+    visited.add(currentURL)
+    
     print(f'Currently at {pageData['title']}')
-    wikiLinks = [l for l in pageData['links'] if l.startswith('/wiki/') and ':' not in l]
+    
+    wikiLinks = [
+    l for l in pageData['links']
+    if l.startswith('/wiki/') 
+    and 'Main_Page' not in l
+    and ('https://en.wikipedia.org' + l) not in visited
+    ]
+
     if not wikiLinks:
         print("Reached a dead end..?")
         break
